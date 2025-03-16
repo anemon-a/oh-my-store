@@ -3,7 +3,7 @@ name = "oh-my-store"
 version = "0.1.0"
 description = ""
 authors = ["anemone <annamatskecich866@gmail.com>"]
-packages = [{ include = "oh-my-store", from = "src" }]
+packages = [{ include = "oh_my_store", from = "src" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -13,7 +13,8 @@ sqlalchemy = "^2.0.39"
 
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.3.5"mk
+pytest = "^8.3.5"
+aiosqlite = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core"]
