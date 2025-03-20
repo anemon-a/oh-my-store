@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Annotated
 from uuid import UUID as uuid, uuid4
 from sqlalchemy import CheckConstraint, UUID, Date, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped
@@ -78,7 +77,6 @@ class Product(Base):
         lazy="immediate",
     )
     image: Mapped["Image"] = relationship(
-        back_populates="product",
         lazy="immediate",
     )
 
@@ -120,6 +118,6 @@ class Image(Base):
     id: Mapped[uuid] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid4
     )
-    image: Mapped[bytes] = mapped_column(nullable=False)
+    image_name: Mapped[bytes] = mapped_column(nullable=False)
 
-    product: Mapped["Image"] = relationship(back_populates="image")
+    # product: Mapped["Image"] = relationship(back_populates="image")
