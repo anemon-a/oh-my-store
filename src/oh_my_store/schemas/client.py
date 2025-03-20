@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import date
 from pydantic import BaseModel, Field, field_validator
-from oh_my_store.schemas.address import Address
+from oh_my_store.schemas.address import AddressCreate
 from oh_my_store.enums import Gender
 
 
@@ -10,7 +10,7 @@ class ClientBase(BaseModel):
     client_surname: str = Field(min_length=1, max_length=100)
     birthday: date
     gender: Gender
-    address: Address
+    address: AddressCreate
 
     @field_validator("birthday")
     @classmethod

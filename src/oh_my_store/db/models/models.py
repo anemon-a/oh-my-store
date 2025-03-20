@@ -1,14 +1,9 @@
-from enum import Enum
 from uuid import UUID as uuid, uuid4
 from sqlalchemy import CheckConstraint, UUID, Date, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from datetime import date, datetime
-
-
-class Gender(Enum):
-    male = 1
-    female = 2
+from oh_my_store.enums import Gender
 
 
 class Base(DeclarativeBase, AsyncAttrs):

@@ -1,13 +1,41 @@
+from typing import Sequence
 from uuid import UUID
+from abc import ABC, abstractmethod
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from oh_my_store.db.models.models import Client as ClientORM, Address as AddressORM
-from oh_my_store.repository.client_repository_interface import IClientRepository
-from oh_my_store.repository.address_repository import (
-    IAddressRepository,
-    AddressRepository,
-)
+from oh_my_store.schemas.address import AddressCreate
 from oh_my_store.schemas.client import ClientCreate
+
+
+class IClientRepository(ABC):
+    @abstractmethod
+    async def get_client_by_id(self, client_id: UUID) -> ClientORM | None:
+        pass
+
+    @abstractmethod
+    async def get_client_by_name_and_surname(
+        self, first_name: str, last_name: str
+    ) -> ClientORM | None:
+        pass
+
+    @abstractmethod
+    async def get_all_clients(self, limit: int, offset: int) -> list[ClientORM]:
+        pass
+
+    @abstractmethod
+    async def add_client(self, client_data: ClientCreate) -> ClientORM:
+        pass
+
+    @abstractmethod
+    async def delete_client_by_id(self, client_id: UUID) -> bool:
+        pass
+
+    @abstractmethod
+    async def update_client_address_by_id(
+        self, client_id: UUID, address: AddressCreate
+    ) -> ClientORM | None:
+        pass
 
 
 class ClientRepository(IClientRepository):
@@ -19,10 +47,11 @@ class ClientRepository(IClientRepository):
         return client
 
     async def get_client_by_name_and_surname(
-        self, name: str, surname: str
+        self, first_name: str, last_name: str
     ) -> ClientORM | None:
         query = select(ClientORM).where(
-            ClientORM.client_name == name and ClientORM.client_surname == surname
+            ClientORM.client_name == first_name
+            and ClientORM.client_surname == last_name
         )
         client: ClientORM | None = await self.session.scalar(query)
         return client
@@ -30,24 +59,20 @@ class ClientRepository(IClientRepository):
     async def get_all_clients(
         self, limit: int = 10, offset: int = 0
     ) -> list[ClientORM]:
-        clients: list[ClientORM] = [
-            (
-                await self.session.scalars(
-                    select(ClientORM).limit(limit).offset(offset)
-                )
-            ).all()
-        ]
+        clients: Sequence[ClientORM] = (
+            await self.session.scalars(select(ClientORM).limit(limit).offset(offset))
+        ).all()
+
         return clients
 
-    async def add_client(self, client_data: dict) -> ClientORM:
+    async def add_client(self, client_data: ClientCreate) -> ClientORM:
+        address = AddressORM(**client_data.address.model_dump())
+        # self.session.add(address)
+        # await self.session.commit()
+        # await self.session.refresh(address)
 
-        address = AddressORM(**client_data["address"])
-        self.session.add(address)
-        await self.session.commit()
-        await self.session.refresh(address)
-
-        client = ClientORM(**client_data)
-        client.address_id = address.id
+        client = ClientORM(**client_data.model_dump())
+        client.address = address
         self.session.add(client)
         await self.session.commit()
         await self.session.refresh(client)
@@ -64,13 +89,15 @@ class ClientRepository(IClientRepository):
         await self.session.commit()
         return True
 
-    async def update_client_address_by_id(self, id: UUID, address) -> ClientORM | None:
+    async def update_client_address_by_id(
+        self, id: UUID, address: AddressCreate
+    ) -> ClientORM | None:
         client: ClientORM | None = await self.get_client_by_id(id)
 
         if not client:
             return None
 
-        client.address = AddressORM(**address)
+        client.address = AddressORM(**address.model_dump())
         await self.session.commit()
         await self.session.refresh(client)
 
