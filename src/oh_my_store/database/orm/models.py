@@ -14,7 +14,7 @@ class AddressORM(Base):
     __tablename__ = "addresses"
 
     id: Mapped[uuid] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid4  # TODO: default_factory
     )
     country: Mapped[str]
     city: Mapped[str]
@@ -25,7 +25,7 @@ class ClientORM(Base):
     __tablename__ = "clients"
 
     id: Mapped[uuid] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid4  # TODO: default_factory
     )
     client_name: Mapped[str] = mapped_column(String(100), nullable=False)
     client_surname: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -44,7 +44,7 @@ class ProductORM(Base):
     __tablename__ = "products"
 
     id: Mapped[uuid] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid4  # TODO: default_factory
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     price: Mapped[float] = mapped_column(Float, default=0, nullable=False)
@@ -94,7 +94,7 @@ class SupplierORM(Base):
     __tablename__ = "suppliers"
 
     id: Mapped[uuid] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid4  # TODO: default_factory
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     phone_number: Mapped[str] = mapped_column(nullable=False, unique=True)
@@ -111,7 +111,7 @@ class ImageORM(Base):
     __tablename__ = "images"
 
     id: Mapped[uuid] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid4  # TODO: default_factory
     )
     image_name: Mapped[bytes] = mapped_column(nullable=False)
 

@@ -1,16 +1,17 @@
 import asyncio
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from oh_my_store.database.orm.models import Base
 
 # URL = "postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
-URL = "sqlite+aiosqlite:///:memory:"
-engine = create_async_engine(url=URL, echo=True)
-async_session = async_sessionmaker(engine)
+URL = "sqlite+aiosqlite:///db.db"
+engine: AsyncEngine = create_async_engine(url=URL, echo=True)
+async_session_factory = async_sessionmaker(engine)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session() as session:
+    async with async_session_factory() as session:
         yield session
 
 

@@ -1,7 +1,9 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
-from oh_my_store.services.client_service import ClientService
+from oh_my_store.api.mapper import Mapper
 from oh_my_store.api.dependencies import get_client_service
+from oh_my_store.domain import Client, Address
+from oh_my_store.services import ClientService
 from oh_my_store.schemas.address import AddressCreate
 from oh_my_store.schemas.client import ClientCreate, ClientResponse
 
@@ -14,49 +16,52 @@ async def get_all_clients(
     offset: int = 0,
     client_service: ClientService = Depends(get_client_service),
 ) -> list[ClientResponse]:
-    client: list[ClientResponse] = await client_service.get_all_clients(limit, offset)
+    clients: list[Client] = await client_service.get_all(limit, offset)
 
-    return client
+    return [ClientResponse.model_validate(client) for client in clients]
 
 
 @router.get("/by-name", response_model=ClientResponse)
-async def get_client_by_first_name_and_last_name(
-    first_name: str,
-    last_name: str,
+async def get_client_by_name_and_surname(
+    name: str,
+    surname: str,
     client_service: ClientService = Depends(get_client_service),
 ) -> ClientResponse:
-    client: ClientResponse | None = await client_service.get_client_by_name_and_surname(
-        first_name, last_name
-    )
+    client: Client | None = await client_service.get_by_name_and_surname(name, surname)
 
     if client is None:
         raise HTTPException(404, "Client not found")
 
-    return client
+    return ClientResponse.model_validate(client)
 
 
 @router.post("/", response_model=ClientResponse)
 async def create_client(
-    client: ClientCreate, client_service: ClientService = Depends(get_client_service)
+    client_data: ClientCreate,
+    client_service: ClientService = Depends(get_client_service),
 ) -> ClientResponse:
-    new_client: ClientResponse = await client_service.create_client(client)
-    return new_client
+    client: Client = await client_service.create(
+        Mapper[Client, ClientCreate].from_pydantic_to_domain(client_data, Client)
+    )
+
+    return ClientResponse.model_validate(client)
 
 
-@router.put("/{client_id}", response_model=ClientResponse)
+@router.patch("/{client_id}", response_model=ClientResponse)
 async def update_client_address_by_id(
     client_id: UUID,
     address: AddressCreate,
     client_service: ClientService = Depends(get_client_service),
 ) -> ClientResponse:
-    client: ClientResponse | None = await client_service.update_client_address_by_id(
-        client_id, address
+    client: ClientResponse | None = await client_service.update_address_by_id(
+        client_id,
+        Mapper[Address, AddressCreate].from_pydantic_to_domain(address, Address),
     )
 
     if client is None:
         raise HTTPException(404, "Client not found")
 
-    return client
+    return ClientResponse.model_validate(client)
 
 
 @router.delete("/{client_id}")
@@ -64,5 +69,5 @@ async def delete_client_by_id(
     client_id: UUID,
     client_service: ClientService = Depends(get_client_service),
 ) -> bool:
-    deleted: ClientResponse | None = await client_service.delete_client_by_id(client_id)
+    deleted: bool = await client_service.delete_by_id(client_id)
     return deleted

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from uuid import UUID
 from oh_my_store.enums import Gender
-from oh_my_store.entities.address import Address
+from oh_my_store.domain import Address
 
 
 @dataclass
@@ -12,6 +12,5 @@ class Client:
     birthday: date
     gender: Gender
     address: Address
-
     id: UUID = None
     registration_date: date = None

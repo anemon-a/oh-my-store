@@ -1,48 +1,44 @@
 from uuid import UUID
-from oh_my_store.entities.client import Client
-from oh_my_store.repository.client_repository import IClientRepository
-from oh_my_store.schemas.client import ClientCreate, ClientResponse
-from oh_my_store.schemas.address import AddressCreate
+from oh_my_store.domain import Address, Client
+from oh_my_store.services.unit_of_work import AbstractUnitOfWork
 
 
 class ClientService:
 
-    def __init__(self, client_repository: IClientRepository):
-        self.client_repository = client_repository
+    def __init__(self, unit_of_work: AbstractUnitOfWork):
+        self._uow = unit_of_work
 
-    async def get_client_by_name_and_surname(
-        self, first_name: str, last_name: str
-    ) -> ClientResponse | None:
-        client: Client | None = await self.client_repository.get_by_name_and_surname(
-            first_name, last_name
-        )
-        if not client:
-            return None
-        return ClientResponse.model_validate(client)
+    async def get_by_name_and_surname(self, name: str, surname: str) -> Client | None:
+        async with self._uow as uow:
+            client: Client | None = await uow._clients.get(name, surname)
+            if not client:
+                return None
+            return client
 
-    async def get_all_clients(
-        self, limit: int = 10, offset: int = 0
-    ) -> list[ClientResponse]:
-        clients: list[Client] = await self.client_repository.get_all(limit, offset)
-        return [ClientResponse.model_validate(client) for client in clients]
+    async def get_all(self, limit: int = 10, offset: int = 0) -> list[Client]:
+        async with self._uow as uow:
+            clients: list[Client] = await uow._clients.list(limit, offset)
+            return clients
 
-    async def create_client(self, client_data: ClientCreate) -> ClientResponse:
-        client = Client(client_data.dict)
-        client: Client = await self.client_repository.create(client_data)
-        return ClientResponse.model_validate(client)
+    async def create(self, client_data: Client) -> Client:
+        async with self._uow as uow:
+            client: Client = await uow._clients.add(client_data)
+            await uow.commit()
+            return client
 
-    async def delete_client_by_id(self, client_id: UUID) -> bool:
-        deleted = await self.client_repository.delete_by_id(client_id)
-        return deleted
+    async def delete_by_id(self, client_id: UUID) -> bool:
+        async with self._uow as uow:
+            deleted: bool = await uow._clients.delete(client_id)
+            await uow.commit()
+            return deleted
 
-    async def update_client_address_by_id(
-        self, client_id: UUID, address_data: AddressCreate
-    ) -> ClientResponse | None:
+    async def update_address_by_id(
+        self, client_id: UUID, address_data: Address
+    ) -> Client | None:
+        async with self._uow as uow:
+            client: Client | None = await uow._clients.update(client_id, address_data)
+            await uow.commit()
+            if not client:
+                return None
 
-        client: Client | None = await self.client_repository.update_address_by_id(
-            client_id, address_data
-        )
-        if not client:
-            return None
-
-        return ClientResponse.model_validate(client)
+            return client

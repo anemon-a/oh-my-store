@@ -7,5 +7,3 @@ class Address:
     city: str
     street: str
 
-    def check_existing() -> bool:
-        pass

@@ -1,10 +1,7 @@
-from fastapi import Depends
-from oh_my_store.database.db import get_session, AsyncSession
-from oh_my_store.services.client_service import ClientService
-from oh_my_store.repository.client_repository import ClientRepository
+from oh_my_store.services import ClientService
+from oh_my_store.database.db import async_session_factory
+from oh_my_store.services.unit_of_work import SQLAlchemyUnitOFWork
 
 
-async def get_client_service(
-    session: AsyncSession = Depends(get_session),
-) -> ClientService:
-    return ClientService(ClientRepository(session))
+async def get_client_service() -> ClientService:
+    return ClientService(SQLAlchemyUnitOFWork(async_session_factory))
