@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from oh_my_store.routers import client_router
+from oh_my_store.api import client_router
 
 app = FastAPI()
 app.include_router(client_router.router)

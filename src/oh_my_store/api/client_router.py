@@ -1,14 +1,14 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from oh_my_store.services.client_service import ClientService
-from oh_my_store.routers.dependencies import get_client_service
+from oh_my_store.api.dependencies import get_client_service
 from oh_my_store.schemas.address import AddressCreate
 from oh_my_store.schemas.client import ClientCreate, ClientResponse
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/clients")
 
 
-@router.get("/clients/", response_model=list[ClientResponse])
+@router.get("/", response_model=list[ClientResponse])
 async def get_all_clients(
     limit: int = 10,
     offset: int = 0,
@@ -19,7 +19,7 @@ async def get_all_clients(
     return client
 
 
-@router.get("/clients/by-name", response_model=ClientResponse)
+@router.get("/by-name", response_model=ClientResponse)
 async def get_client_by_first_name_and_last_name(
     first_name: str,
     last_name: str,
@@ -35,7 +35,7 @@ async def get_client_by_first_name_and_last_name(
     return client
 
 
-@router.post("/clients", response_model=ClientResponse)
+@router.post("/", response_model=ClientResponse)
 async def create_client(
     client: ClientCreate, client_service: ClientService = Depends(get_client_service)
 ) -> ClientResponse:
@@ -43,7 +43,7 @@ async def create_client(
     return new_client
 
 
-@router.put("/clients/{client_id}", response_model=ClientResponse)
+@router.put("/{client_id}", response_model=ClientResponse)
 async def update_client_address_by_id(
     client_id: UUID,
     address: AddressCreate,
@@ -59,7 +59,7 @@ async def update_client_address_by_id(
     return client
 
 
-@router.delete("/clients/{client_id}")
+@router.delete("/{client_id}")
 async def delete_client_by_id(
     client_id: UUID,
     client_service: ClientService = Depends(get_client_service),

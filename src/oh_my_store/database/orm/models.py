@@ -10,7 +10,7 @@ class Base(DeclarativeBase, AsyncAttrs):
     pass
 
 
-class Address(Base):
+class AddressORM(Base):
     __tablename__ = "addresses"
 
     id: Mapped[uuid] = mapped_column(
@@ -21,7 +21,7 @@ class Address(Base):
     street: Mapped[str]
 
 
-class Client(Base):
+class ClientORM(Base):
     __tablename__ = "clients"
 
     id: Mapped[uuid] = mapped_column(
@@ -37,10 +37,10 @@ class Client(Base):
         ForeignKey("addresses.id"),
     )
 
-    address: Mapped["Address"] = relationship(lazy="immediate")
+    address: Mapped["AddressORM"] = relationship(lazy="immediate")
 
 
-class Product(Base):
+class ProductORM(Base):
     __tablename__ = "products"
 
     id: Mapped[uuid] = mapped_column(
@@ -63,15 +63,15 @@ class Product(Base):
         ForeignKey("images.id"),
     )
 
-    category: Mapped["Category"] = relationship(
+    category: Mapped["CategoryORM"] = relationship(
         back_populates="products",
         lazy="immediate",
     )
-    supplier: Mapped["Supplier"] = relationship(
+    supplier: Mapped["SupplierORM"] = relationship(
         back_populates="products",
         lazy="immediate",
     )
-    image: Mapped["Image"] = relationship(
+    image: Mapped["ImageORM"] = relationship(
         lazy="immediate",
     )
 
@@ -81,16 +81,16 @@ class Product(Base):
     )
 
 
-class Category(Base):
+class CategoryORM(Base):
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     category_name: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    products: Mapped[list["Product"]] = relationship(back_populates="category")
+    products: Mapped[list["ProductORM"]] = relationship(back_populates="category")
 
 
-class Supplier(Base):
+class SupplierORM(Base):
     __tablename__ = "suppliers"
 
     id: Mapped[uuid] = mapped_column(
@@ -103,11 +103,11 @@ class Supplier(Base):
         ForeignKey("addresses.id"),
     )
 
-    address: Mapped["Address"] = relationship(lazy="immediate")
-    products: Mapped[list["Product"]] = relationship(back_populates="supplier")
+    address: Mapped["AddressORM"] = relationship(lazy="immediate")
+    products: Mapped[list["ProductORM"]] = relationship(back_populates="supplier")
 
 
-class Image(Base):
+class ImageORM(Base):
     __tablename__ = "images"
 
     id: Mapped[uuid] = mapped_column(

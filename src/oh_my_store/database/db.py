@@ -1,8 +1,9 @@
 import asyncio
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
-from oh_my_store.db.models.models import Base
+from oh_my_store.database.orm.models import Base
 
+# URL = "postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
 URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(url=URL, echo=True)
 async_session = async_sessionmaker(engine)
