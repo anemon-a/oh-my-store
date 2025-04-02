@@ -1,3 +1,4 @@
+from uuid import UUID
 from dataclasses import dataclass
 
 
@@ -6,4 +7,4 @@ class Address:
     country: str
     city: str
     street: str
-
+    id: UUID = None
