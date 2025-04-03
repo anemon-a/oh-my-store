@@ -30,7 +30,7 @@ class Mapper[T, U]:
 
         return orm_class(**kwargs)
 
-    def from_orm_to_domain(self, orm_obj: Any, domain_class: Type[T]) -> T:
+    def from_orm_to_domain(self, orm_obj: U, domain_class: Type[T]) -> T:
         kwargs = {}
         for field in fields(domain_class):
             value = getattr(orm_obj, field.name, None)
