@@ -7,7 +7,7 @@ from oh_my_store.repositories import AbstractRepository
 from oh_my_store.repositories.mapper import Mapper
 
 
-class ClientSQLALchemytRepository(AbstractRepository[Client]):
+class ClientSQLAlchemytRepository(AbstractRepository[Client]):
 
     def __init__(self, session: AsyncSession) -> None:
         self._session: AsyncSession = session
@@ -25,7 +25,7 @@ class ClientSQLALchemytRepository(AbstractRepository[Client]):
         client: ClientORM | None = await self._session.scalar(query)
         return self._client_mapper.from_orm_to_domain(client, Client)
 
-    async def list(self, limit: int = 10, offset: int = 0) -> list[Client]:
+    async def list(self, limit: int, offset: int) -> list[Client]:
         clients = (
             await self._session.scalars(select(ClientORM).limit(limit).offset(offset))
         ).all()
@@ -57,7 +57,8 @@ class ClientSQLALchemytRepository(AbstractRepository[Client]):
         if not client:
             return None
 
-        address_mapper = Mapper[Address, AddressORM]()
-        client.address = address_mapper.from_domain_to_orm(address, AddressORM)
+        client.address.country = address.country
+        client.address.city = address.city
+        client.address.street = address.street
 
         return self._client_mapper.from_orm_to_domain(client, Client)

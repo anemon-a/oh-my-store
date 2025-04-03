@@ -1,2 +1,3 @@
 from .base import AbstractRepository
-from .client_sqlalchemy import ClientSQLALchemytRepository
+from .client_sqlalchemy import ClientSQLAlchemytRepository
+from .supplier_repository import SupplierSQLAlchemyRepository

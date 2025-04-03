@@ -1,10 +1,16 @@
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from oh_my_store.repositories import AbstractRepository, ClientSQLALchemytRepository
+from oh_my_store.domain import Client, Supplier
+from oh_my_store.repositories import (
+    AbstractRepository,
+    ClientSQLAlchemytRepository,
+    SupplierSQLAlchemyRepository,
+)
 
 
 class AbstractUnitOfWork(ABC):
-    _clients: AbstractRepository
+    _clients: AbstractRepository[Client]
+    _suppliers: AbstractRepository[Supplier]
 
     async def __aenter__(self) -> "AbstractUnitOfWork":
         return self
@@ -32,7 +38,8 @@ class SQLAlchemyUnitOFWork(AbstractUnitOfWork):
 
     async def __aenter__(self):
         self.session: AsyncSession = self._session_factory()
-        self._clients = ClientSQLALchemytRepository(self.session)
+        self._clients = ClientSQLAlchemytRepository(self.session)
+        self._suppliers = SupplierSQLAlchemyRepository(self.session)
         return await super().__aenter__()
 
     async def __aexit__(self, *args):

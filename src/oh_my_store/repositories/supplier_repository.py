@@ -4,10 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from oh_my_store.domain import Supplier, Address
 from oh_my_store.repositories import AbstractRepository
 from oh_my_store.repositories.mapper import Mapper
-from oh_my_store.database.orm.models import AddressORM, SupplierORM
+from oh_my_store.database.orm.models import SupplierORM
 
 
-class SQLAlchemySupplierRepository(AbstractRepository[Supplier]):
+class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
+
     def __init__(self, session: AsyncSession):
         self._session: AsyncSession = session
         self._supplier_mapper = Mapper[Supplier, SupplierORM]()
@@ -53,7 +54,8 @@ class SQLAlchemySupplierRepository(AbstractRepository[Supplier]):
         if not supplier:
             return None
 
-        address_mapper = Mapper[Address, AddressORM]()
+        supplier.address.country = address.country
+        supplier.address.city = address.city
+        supplier.address.street = address.street
 
-        supplier.address = address_mapper.from_domain_to_orm(address, AddressORM)
         return self._supplier_mapper.from_orm_to_domain(supplier, Supplier)
