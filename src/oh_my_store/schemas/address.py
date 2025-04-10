@@ -1,5 +1,5 @@
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AddressBase(BaseModel):
@@ -13,7 +13,5 @@ class AddressCreate(AddressBase):
 
 
 class AddressResponse(AddressBase):
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
-
-    class Config:
-        from_attributes = True

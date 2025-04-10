@@ -1,5 +1,5 @@
 from uuid import UUID
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from oh_my_store.schemas.address import AddressCreate, AddressResponse
 
 
@@ -13,8 +13,6 @@ class SupplierCreate(SupplierBase):
 
 
 class SupplierResponse(SupplierBase):
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
     address: AddressResponse
-
-    class Config:
-        from_attributes = True
