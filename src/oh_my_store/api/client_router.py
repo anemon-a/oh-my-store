@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
-from oh_my_store.api.mapper import Mapper
+from oh_my_store.utils import to_dataclass, to_pydantic
 from oh_my_store.api.dependencies import get_uow
 from oh_my_store.domain import Client, Address
 from oh_my_store.services import ClientService
@@ -19,7 +19,7 @@ async def get_all_clients(
     client_service = ClientService(uow)
     clients: list[Client] = await client_service.get_all(limit, offset)
 
-    return [ClientResponse.model_validate(client) for client in clients]
+    return [to_pydantic(client, ClientResponse) for client in clients]
 
 
 @router.get("/by-name", response_model=ClientResponse)
@@ -34,7 +34,7 @@ async def get_client_by_name_and_surname(
     if client is None:
         raise HTTPException(404, "Client not found")
 
-    return ClientResponse.model_validate(client)
+    return to_pydantic(client, ClientResponse)
 
 
 @router.post("/", response_model=ClientResponse)
@@ -43,11 +43,9 @@ async def create_client(
     uow: AbstractUnitOfWork = (Depends(get_uow)),
 ) -> ClientResponse:
     client_service = ClientService(uow)
-    client: Client = await client_service.create(
-        Mapper[Client, ClientCreate].from_pydantic_to_domain(client_data, Client)
-    )
+    client: Client = await client_service.create(to_dataclass(client_data, Client))
 
-    return ClientResponse.model_validate(client)
+    return to_pydantic(client, ClientResponse)
 
 
 @router.patch("/{client_id}", response_model=ClientResponse)
@@ -59,13 +57,13 @@ async def update_client_address_by_id(
     client_service = ClientService(uow)
     client: ClientResponse | None = await client_service.update_address_by_id(
         client_id,
-        Mapper[Address, AddressCreate].from_pydantic_to_domain(address, Address),
+        to_dataclass(address, Address),
     )
 
     if client is None:
         raise HTTPException(404, "Client not found")
 
-    return ClientResponse.model_validate(client)
+    return to_pydantic(client, ClientResponse)
 
 
 @router.delete("/{client_id}")

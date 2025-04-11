@@ -1,8 +1,11 @@
-import asyncio
-from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
-from oh_my_store.database.orm.models import Base
+from sqlalchemy import inspect
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    create_async_engine,
+    AsyncAttrs,
+    AsyncEngine,
+)
+from sqlalchemy.orm import DeclarativeBase
 
 # URL = "postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
 URL = "sqlite+aiosqlite:///db.db"
@@ -10,29 +13,16 @@ engine: AsyncEngine = create_async_engine(url=URL, echo=True)
 async_session_factory = async_sessionmaker(engine)
 
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_factory() as session:
-        yield session
+class Base(AsyncAttrs, DeclarativeBase):
+    __abstract__ = True
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            raise TypeError
 
-async def create_tables() -> None:
-    """Создание всех таблиц в базе данных"""
+        if self.id == other.id:
+            return True
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
-async def drop_tables() -> None:
-    """Удаление всех таблиц из базы данных"""
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-async def main():
-    await drop_tables()
-    await create_tables()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        for column in inspect(self).attrs:
+            if getattr(self, column, None) != getattr(other, column, None):
+                return False

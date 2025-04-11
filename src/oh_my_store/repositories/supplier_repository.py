@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from oh_my_store.domain import Supplier, Address
 from oh_my_store.repositories import AbstractRepository
-from oh_my_store.repositories.mapper import Mapper
+from oh_my_store.utils import to_dataclass, to_orm
 from oh_my_store.database.orm.models import SupplierORM
 
 
@@ -11,11 +11,10 @@ class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
 
     def __init__(self, session: AsyncSession):
         self._session: AsyncSession = session
-        self._supplier_mapper = Mapper[Supplier, SupplierORM]()
 
     async def get_by_id(self, id: UUID) -> Supplier | None:
         supplier: SupplierORM | None = await self._session.get(SupplierORM, id)
-        return self._supplier_mapper.from_orm_to_domain(supplier, Supplier)
+        return to_dataclass(supplier, Supplier)
 
     async def get(self, **kwargs) -> Supplier | None:
         pass
@@ -25,20 +24,15 @@ class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
             await self._session.scalars(select(SupplierORM).limit(limit).offset(offset))
         ).all()
 
-        return [
-            self._supplier_mapper.from_orm_to_domain(supplier, Supplier)
-            for supplier in suppliers
-        ]
+        return [to_dataclass(supplier, Supplier) for supplier in suppliers]
 
     async def add(self, supplier_data: Supplier) -> Supplier:
-        supplier_orm = self._supplier_mapper.from_domain_to_orm(
-            supplier_data, SupplierORM
-        )
+        supplier_orm = to_orm(supplier_data, SupplierORM)
 
         self._session.add(supplier_orm)
         self._session.flush()
 
-        return self._supplier_mapper.from_orm_to_domain(supplier_orm, Supplier)
+        return to_dataclass(supplier_orm, Supplier)
 
     async def delete(self, id: UUID) -> bool:
         supplier: SupplierORM | None = await self._session.get(SupplierORM, id)
@@ -58,4 +52,4 @@ class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
         supplier.address.city = address.city
         supplier.address.street = address.street
 
-        return self._supplier_mapper.from_orm_to_domain(supplier, Supplier)
+        return to_dataclass(supplier, Supplier)

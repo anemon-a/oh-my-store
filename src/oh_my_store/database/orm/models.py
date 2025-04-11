@@ -1,13 +1,9 @@
 from uuid import UUID as uuid, uuid4
 from sqlalchemy import CheckConstraint, UUID, Date, Float, ForeignKey, Integer, String
-from sqlalchemy.orm import DeclarativeBase, relationship, mapped_column, Mapped
-from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 from datetime import date, datetime
 from oh_my_store.enums import Gender
-
-
-class Base(DeclarativeBase, AsyncAttrs):
-    pass
+from oh_my_store.database.db import Base
 
 
 class AddressORM(Base):
