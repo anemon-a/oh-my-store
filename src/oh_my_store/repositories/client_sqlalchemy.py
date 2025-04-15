@@ -14,15 +14,24 @@ class ClientSQLAlchemytRepository(AbstractRepository[Client]):
 
     async def get_by_id(self, id: UUID) -> Client | None:
         client: ClientORM | None = await self._session.get(ClientORM, id)
-        return to_dataclass(client, Client)
+
+        if client:
+            client = to_dataclass(client, Client)
+
+        return client
 
     async def get(self, first_name: str, last_name: str) -> Client | None:
-        query = select(ClientORM).where(
-            ClientORM.client_name == first_name
-            and ClientORM.client_surname == last_name
+        query = (
+            select(ClientORM)
+            .where(ClientORM.client_name == first_name)
+            .where(ClientORM.client_surname == last_name)
         )
         client: ClientORM | None = await self._session.scalar(query)
-        return to_dataclass(client, Client)
+
+        if client:
+            client = to_dataclass(client, Client)
+
+        return client
 
     async def list(self, limit: int, offset: int) -> list[Client]:
         clients = (
@@ -30,12 +39,14 @@ class ClientSQLAlchemytRepository(AbstractRepository[Client]):
         ).all()
 
         clients: list[Client] = [to_dataclass(client, Client) for client in clients]
+
         return clients
 
     async def add(self, client_data: Client) -> Client:
         client = to_orm(client_data, ClientORM)
         self._session.add(client)
         await self._session.flush()
+
         return to_dataclass(client, Client)
 
     async def delete(self, id: UUID) -> bool:
