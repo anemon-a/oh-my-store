@@ -11,11 +11,15 @@ python = "^3.12"
 fastapi = "^0.115.11"
 sqlalchemy = "^2.0.39"
 uvicorn = "^0.34.0"
+alembic = "^1.15.2"
+pydantic-settings = "^2.8.1"
+asyncpg = "^0.30.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 aiosqlite = "^0.21.0"
+pytest-asyncio = "^0.26.0"
 
 [build-system]
 requires = ["poetry-core"]

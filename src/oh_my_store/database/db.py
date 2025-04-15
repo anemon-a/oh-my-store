@@ -6,10 +6,11 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
 )
 from sqlalchemy.orm import DeclarativeBase
+from oh_my_store.config import get_db_url
 
-# URL = "postgresql+psycopg2://{username}:{password}@{host}:{port}/{database}"
-URL = "sqlite+aiosqlite:///db.db"
-engine: AsyncEngine = create_async_engine(url=URL, echo=True)
+
+DATABASE_URL = get_db_url()
+engine: AsyncEngine = create_async_engine(url=DATABASE_URL, echo=True)
 async_session_factory = async_sessionmaker(engine)
 
 
@@ -18,7 +19,7 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, self.__class__):
-            raise TypeError
+            return False
 
         if self.id == other.id:
             return True

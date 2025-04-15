@@ -111,4 +111,4 @@ class ImageORM(Base):
     )
     image_name: Mapped[bytes] = mapped_column(nullable=False)
 
-    # product: Mapped["Image"] = relationship(back_populates="image")
+    product: Mapped["ProductORM"] = relationship(back_populates="image")

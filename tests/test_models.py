@@ -4,9 +4,8 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from oh_my_store.database.orm.models import Base
 from oh_my_store.enums import Gender
-from oh_my_store.entities.client import Client
-from oh_my_store.entities.address import Address
-from oh_my_store.repository.client_sqlalchemy import ClientSQLALchemytRepository
+from oh_my_store.domain import Client, Address
+from oh_my_store.repositories.client_sqlalchemy import ClientSQLAlchemytRepository
 
 
 @pytest.fixture(autouse=True)
@@ -56,6 +55,6 @@ async def clients(addresses: list[Address]) -> list[Client]:
 async def test_client_sqlalchemy_repository_add(
     clients: list[Client], session: AsyncSession
 ):
-    repository = ClientSQLALchemytRepository(session)
-    client_1: Client = await repository.add(client_data=clients[0])
-    assert client_1 == await repository.get_by_id(client_1.id)
+    repository = ClientSQLAlchemytRepository(session)
+    client: Client = await repository.add(client_data=clients[0])
+    assert client == await repository.get_by_id(client.id)
