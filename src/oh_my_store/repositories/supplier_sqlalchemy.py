@@ -14,7 +14,11 @@ class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
 
     async def get_by_id(self, id: UUID) -> Supplier | None:
         supplier: SupplierORM | None = await self._session.get(SupplierORM, id)
-        return to_dataclass(supplier, Supplier)
+
+        if supplier:
+            supplier = to_dataclass(supplier, Supplier)
+
+        return supplier
 
     async def get(self, **kwargs) -> Supplier | None:
         pass
@@ -30,7 +34,7 @@ class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
         supplier_orm = to_orm(supplier_data, SupplierORM)
 
         self._session.add(supplier_orm)
-        self._session.flush()
+        await self._session.flush()
 
         return to_dataclass(supplier_orm, Supplier)
 
@@ -41,6 +45,7 @@ class SupplierSQLAlchemyRepository(AbstractRepository[Supplier]):
             return False
 
         await self._session.delete(supplier)
+
         return True
 
     async def update(self, id: UUID, address: Address) -> Supplier | None:

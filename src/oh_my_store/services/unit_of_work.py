@@ -18,10 +18,9 @@ class AbstractUnitOfWork(ABC):
     async def __aexit__(self, exc_type, exc_value, tb):
         if exc_type is None:
             await self.commit()
-            return
+            return True
 
-        self.rollback()
-        raise exc_value from tb
+        await self.rollback()
 
     @abstractmethod
     async def commit(self):

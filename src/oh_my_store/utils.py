@@ -30,8 +30,8 @@ def to_orm[T, U](obj: T, orm_class: Type[U]) -> U:
 
         if isinstance(column, Relationship):
             column_class = column.mapper.class_
-            # print(value, type(value), column_class)
-            dict_obj[column_name] = to_orm(value, column_class)
+            if value:
+                dict_obj[column_name] = to_orm(value, column_class)
 
         elif isinstance(column, list):
             pass
