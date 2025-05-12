@@ -1,8 +1,10 @@
-from uuid import UUID
 from datetime import date
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from oh_my_store.schemas.address import AddressCreate, AddressResponse
+
 from oh_my_store.enums import Gender
+from oh_my_store.schemas.address import AddressCreate, AddressResponse
 
 
 class ClientBase(BaseModel):
@@ -24,7 +26,7 @@ class ClientCreate(ClientBase):
 
 
 class ClientResponse(ClientBase):
-    model_config = ConfigDict(from_attributes = True)
+    model_config = ConfigDict(from_attributes=True)
     id: UUID
     registration_date: date
     address: AddressResponse

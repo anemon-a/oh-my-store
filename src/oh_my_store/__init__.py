@@ -1,0 +1,3 @@
+"""
+Oh My Store package
+"""

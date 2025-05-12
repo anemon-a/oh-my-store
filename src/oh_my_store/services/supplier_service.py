@@ -1,12 +1,13 @@
 from uuid import UUID
+
 from sqlalchemy.exc import IntegrityError
-from oh_my_store.domain import Supplier, Address
-from oh_my_store.services.unit_of_work import AbstractUnitOfWork
+
+from oh_my_store.entities import Address, Supplier
 from oh_my_store.exceptions import DuplicatePhoneNumberError, SupplierNotFoundError
+from oh_my_store.services.unit_of_work import AbstractUnitOfWork
 
 
 class SupplierService:
-
     def __init__(self, unit_of_work: AbstractUnitOfWork):
         self._unit_of_work: AbstractUnitOfWork = unit_of_work
 
@@ -29,7 +30,7 @@ class SupplierService:
                 supplier: Supplier = await uow._suppliers.add(supplier_data)
                 return supplier
 
-        except IntegrityError as e:
+        except IntegrityError:
             raise DuplicatePhoneNumberError(supplier_data.phone_number)
 
     async def delete_by_id(self, supplier_id: UUID) -> bool:
@@ -43,7 +44,7 @@ class SupplierService:
     ) -> Supplier | None:
         async with self._unit_of_work as uow:
             supplier: Supplier | None = await uow._suppliers.update(
-                supplier_id, new_address
+                supplier_id, address=new_address
             )
             if not supplier:
                 raise SupplierNotFoundError(supplier_id)

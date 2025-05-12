@@ -1,11 +1,13 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
-from oh_my_store.utils import to_dataclass, to_pydantic
+
+from fastapi import APIRouter, Depends
+
 from oh_my_store.api.dependencies import get_unit_of_work
-from oh_my_store.domain import Client, Address
+from oh_my_store.entities import Address, Client
 from oh_my_store.schemas import AddressCreate, ClientCreate, ClientResponse
 from oh_my_store.services import ClientService
 from oh_my_store.services.unit_of_work import AbstractUnitOfWork
+from oh_my_store.utils import to_dataclass, to_pydantic
 
 router = APIRouter(prefix="/api/v1/clients", tags=["clients"])
 
@@ -50,7 +52,7 @@ async def update_client_address_by_id(
     uow: AbstractUnitOfWork = (Depends(get_unit_of_work)),
 ) -> ClientResponse:
     client_service = ClientService(uow)
-    client: ClientResponse | None = await client_service.update_address_by_id(
+    client: Client | None = await client_service.update_address_by_id(
         client_id,
         to_dataclass(address, Address),
     )

@@ -1,12 +1,13 @@
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, Depends
-from oh_my_store.utils import to_pydantic, to_dataclass
+
+from fastapi import APIRouter, Depends
+
 from oh_my_store.api.dependencies import get_unit_of_work
-from oh_my_store.domain import Supplier, Address
-from oh_my_store.schemas import SupplierResponse, SupplierCreate, AddressCreate
+from oh_my_store.entities import Address, Supplier
+from oh_my_store.schemas import AddressCreate, SupplierCreate, SupplierResponse
 from oh_my_store.services import SupplierService
 from oh_my_store.services.unit_of_work import AbstractUnitOfWork
-
+from oh_my_store.utils import to_dataclass, to_pydantic
 
 router = APIRouter(prefix="/api/v1/supplier", tags=["suppliers"])
 

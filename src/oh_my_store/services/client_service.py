@@ -1,17 +1,17 @@
 from uuid import UUID
-from oh_my_store.domain import Address, Client
-from oh_my_store.services.unit_of_work import AbstractUnitOfWork
+
+from oh_my_store.entities import Address, Client
 from oh_my_store.exceptions import ClientNotFoundError
+from oh_my_store.services.unit_of_work import AbstractUnitOfWork
 
 
 class ClientService:
-
-    def __init__(self, unit_of_work: AbstractUnitOfWork):
+    def __init__(self, unit_of_work: AbstractUnitOfWork) -> None:
         self._unit_of_work: AbstractUnitOfWork = unit_of_work
 
     async def get_by_name_and_surname(self, name: str, surname: str) -> Client | None:
         async with self._unit_of_work as uow:
-            client: Client | None = await uow._clients.get(name, surname)
+            client: Client | None = await uow._clients.get(name=name, surname=surname)
             if not client:
                 raise ClientNotFoundError(name=name, surname=surname)
 
@@ -36,7 +36,9 @@ class ClientService:
         self, client_id: UUID, new_address: Address
     ) -> Client | None:
         async with self._unit_of_work as uow:
-            client: Client | None = await uow._clients.update(client_id, new_address)
+            client: Client | None = await uow._clients.update(
+                client_id, address=new_address
+            )
             if not client:
                 raise ClientNotFoundError(client_id=client_id)
             return client

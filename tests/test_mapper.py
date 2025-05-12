@@ -1,17 +1,19 @@
-import pytest
-from uuid import UUID
 from datetime import date
+from uuid import UUID
+
+import pytest
 from pydantic import ValidationError
+
+from oh_my_store.database.orm.models import AddressORM, ClientORM
+from oh_my_store.entities import Address, Client
 from oh_my_store.enums import Gender
-from oh_my_store.utils import to_dataclass, to_orm, to_pydantic
-from oh_my_store.domain import Address, Client
 from oh_my_store.schemas import (
-    ClientCreate,
     AddressCreate,
-    ClientResponse,
     AddressResponse,
+    ClientCreate,
+    ClientResponse,
 )
-from oh_my_store.database.orm.models import ClientORM, AddressORM
+from oh_my_store.utils import to_dataclass, to_orm, to_pydantic
 
 
 @pytest.fixture

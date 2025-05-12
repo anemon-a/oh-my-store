@@ -1,14 +1,15 @@
 from fastapi import FastAPI
+
 from oh_my_store.api import client_router, supplier_router
 from oh_my_store.api.handlers import (
+    client_not_found_handler,
     phone_number_duplicate_handler,
     supplier_not_found_handler,
-    client_not_found_handler,
 )
 from oh_my_store.exceptions import (
+    ClientNotFoundError,
     DuplicatePhoneNumberError,
     SupplierNotFoundError,
-    ClientNotFoundError,
 )
 
 app = FastAPI()

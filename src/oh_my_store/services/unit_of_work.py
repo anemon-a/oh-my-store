@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from oh_my_store.domain import Client, Supplier
+
+from oh_my_store.entities import Client, Supplier
 from oh_my_store.repositories import (
     AbstractRepository,
     ClientSQLAlchemytRepository,
